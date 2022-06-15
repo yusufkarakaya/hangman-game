@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <link rel="shortcut icon" href="#" type="image/x-icon">
+  <title>Hangman</title>
+</head>
+
+<body>
+  <h1>Hangman Game</h1>
+  <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eligendi, facilis?</p>
+
+
+  <div class="game-container">
+    <svg height="250" width="200" class="figure-container">
+      <!-- Rod -->
+      <line x1="60" y1="20" x2="140" y2="20"></line>
+      <line x1="140" y1="20" x2="140" y2="50"></line>
+      <line x1="60" y1="230" x2="60" y2="20"></line>
+      <line x1="30" y1="230" x2="120" y2="230"></line>
+
+      <!-- Head -->
+      <circle cx="140" cy="70" r="20" class="figure-part"></circle>
+
+      <!-- Body -->
+      <line x1="140" y1="90" x2="140" y2="130" class="figure-part"></line>
+
+      <!-- Arms -->
+      <line x1="140" y1="110" x2="110" y2="100" class="figure-part"></line>
+      <line x1="140" y1="110" x2="170" y2="100" class="figure-part"></line>
+
+      <!-- Legs -->
+      <line x1="140" y1="130" x2="110" y2="155" class="figure-part"></line>
+      <line x1="140" y1="130" x2="170" y2="155" class="figure-part"></line>
+    </svg>
+
+    <div class="wrong-letter-container">
+      <div id="wrong-notification">
+      </div>
+    </div>
+
+    <div class="word" id="word">
+
+    </div>
+  </div>
+
+  <!-- Container for final massage -->
+  <div class="popup-container" id="popup-container">
+    <div id="popup" class="popup">
+      <h2 id="final-massage"></h2>
+      <button id="play-again">Play again</button>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div class="notification-container" id="notification-container">
+    <div id="notification">
+      <p>You have already entered this letter</p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
