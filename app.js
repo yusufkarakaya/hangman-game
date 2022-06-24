@@ -7,48 +7,82 @@ const wrongLetterEl = document.getElementById('wrong-notification');
 
 const figureParts = document.querySelectorAll('.figure-part');
 
-const words = ['application', 'wizard', 'javascript', 'california'];
-
-let selectedWord = words[Math.floor(Math.random() * words.length)];
-const correctLetters = [];
+let didWeGetWord = false;
+let selectedWord = [];
+let correctLetters = [];
 const wrongLetters = [];
 
-//Show hide words
-function displayWord() {
+const apiUrl = 'https://random-word-api.herokuapp.com/word';
+setWord = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+getWord = (key) =>
+  localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : '';
+delWord = (key) => localStorage.removeItem(key);
+
+(async function () {
+  if (!getWord('word')) {
+    await fetch(apiUrl)
+      .then((res) => res.json())
+      .then((data) => setWord('word', data));
+  }
+})();
+
+const sleep = (milliseconds) => {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
+
+async function displayWord() {
+  selectedWord = getWord('word');
+
+  if (selectedWord.toString() === '') {
+    await sleep(1500);
+    await displayWord();
+  }
+
   wordEl.innerHTML = `
-    ${selectedWord
-      .split('')
-      .map(
-        (letter) =>
-          `<span class="letter">
-        ${correctLetters.includes(letter) ? letter : ''}
-        </span>`
-      )
-      .join('')}
-  `;
+          ${selectedWord
+            .toString()
+            .split('')
+            .map(
+              (letter) =>
+                `
+                <span class="letter">
+                  ${correctLetters.includes(letter) ? letter : ''}
+                </span>
+              `
+            )
+            .join('')}
+        `;
 
   const innerWord = wordEl.innerText.replace(/\n/g, '');
-  if (innerWord === selectedWord) {
+
+  if (selectedWord.toString() === innerWord) {
     popup.style.display = 'flex';
-    finalMassage.innerText = 'You won! 😎';
+    finalMassage.innerText = 'you won!😎';
   }
 }
 
-//Show wrong letters
 function wrongLetter() {
+  const errors = wrongLetters.length;
+
   wrongLetterEl.innerHTML = `
-    ${wrongLetters.length > 0 ? '<p>Wrong</p>' : ''}
-    ${wrongLetters.map((letter) => `<span>${letter}</span>`)}
-  `;
+  <p>Wrong</p>
+
+  ${wrongLetters.map(
+    (letter) =>
+      `
+   <span>${letter} </span>
+   `
+  )}
+`;
 
   figureParts.forEach((part, index) => {
-    const errors = wrongLetters.length;
-
+    console.log(index, errors);
     if (index < errors) {
+      console.log(part);
       part.style.display = 'block';
       if (errors > 5) {
         popup.style.display = 'flex';
-        finalMassage.innerText = 'You lose 😔';
+        finalMassage.innerText = 'you lose😔';
       }
     } else {
       part.style.display = 'none';
@@ -57,38 +91,21 @@ function wrongLetter() {
 }
 
 window.addEventListener('keydown', (e) => {
-  if (e.keyCode >= 65 && e.keyCode <= 95) {
-    if (!correctLetters.includes(e.key)) {
-      correctLetters.push(e.key);
-      displayWord();
-    } else {
-      notification.style.bottom = '0';
-      setTimeout(() => {
-        notification.style.bottom = '-50px';
-      }, 2000);
-    }
-
-    if (!selectedWord.includes(e.key)) {
-      if (!wrongLetters.includes(e.key)) {
-        wrongLetters.push(e.key);
-        wrongLetter();
+  const errors = wrongLetters.length;
+  const letter = e.key;
+  if (e.keyCode >= 65 && e.keyCode <= 90) {
+    if (selectedWord.toString().includes(letter)) {
+      if (!correctLetters.includes(letter)) {
+        correctLetters.push(letter);
+        displayWord();
       }
     }
+
+    if (!selectedWord.toString().includes(letter)) {
+      wrongLetters.push(letter);
+      wrongLetter();
+    }
   }
-});
-
-playAgainBtn.addEventListener('click', () => {
-  correctLetters.splice(0);
-  wrongLetters.splice(0);
-
-  selectedWord = words[Math.floor(Math.random() * words.length)];
-
-  popup.style.display = 'none';
-  finalMassage.innerText = '';
-
-  wrongLetter();
-
-  displayWord();
 });
 
 displayWord();
