@@ -94,6 +94,13 @@ function wrongLetter() {
   });
 }
 
+function sameKey() {
+  notification.style.bottom = '0';
+  setTimeout(() => {
+    notification.style.bottom = '-50px';
+  }, 2000);
+}
+
 window.addEventListener('keydown', (e) => {
   const letter = e.key;
   if (!isGameEnd) {
@@ -102,6 +109,8 @@ window.addEventListener('keydown', (e) => {
         if (!correctLetters.includes(letter)) {
           correctLetters.push(letter);
           displayWord();
+        } else {
+          sameKey();
         }
       }
 
@@ -109,6 +118,8 @@ window.addEventListener('keydown', (e) => {
         if (!wrongLetters.includes(letter)) {
           wrongLetters.push(letter);
           wrongLetter();
+        } else {
+          sameKey();
         }
       }
     }
