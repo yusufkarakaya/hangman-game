@@ -7,9 +7,9 @@ const wrongLetterEl = document.getElementById('wrong-notification');
 
 const figureParts = document.querySelectorAll('.figure-part');
 
-let didWeGetWord = false;
+let isGameEnd = false;
 let selectedWord = [];
-let correctLetters = [];
+const correctLetters = [];
 const wrongLetters = [];
 
 const apiUrl = 'https://random-word-api.herokuapp.com/word';
@@ -34,7 +34,7 @@ async function displayWord() {
   selectedWord = getWord('word');
 
   if (selectedWord.toString() === '') {
-    await sleep(1500);
+    await sleep(2000);
     await displayWord();
   }
 
@@ -57,7 +57,10 @@ async function displayWord() {
 
   if (selectedWord.toString() === innerWord) {
     popup.style.display = 'flex';
-    finalMassage.innerText = 'you won!😎';
+    finalMassage.innerHTML = `<p>You won! 😎<p>
+    <span>New game will start 2s later after click 'play again'</span>
+    `;
+    isGameEnd = true;
   }
 }
 
@@ -66,7 +69,6 @@ function wrongLetter() {
 
   wrongLetterEl.innerHTML = `
   <p>Wrong</p>
-
   ${wrongLetters.map(
     (letter) =>
       `
@@ -76,13 +78,15 @@ function wrongLetter() {
 `;
 
   figureParts.forEach((part, index) => {
-    console.log(index, errors);
     if (index < errors) {
       console.log(part);
       part.style.display = 'block';
       if (errors > 5) {
         popup.style.display = 'flex';
-        finalMassage.innerText = 'you lose😔';
+        finalMassage.innerHTML = `<p>You lose! 😔<p>
+        <span>New game will start 2s later after click 'play again'</span>
+        `;
+        isGameEnd = true;
       }
     } else {
       part.style.display = 'none';
@@ -91,21 +95,44 @@ function wrongLetter() {
 }
 
 window.addEventListener('keydown', (e) => {
-  const errors = wrongLetters.length;
   const letter = e.key;
-  if (e.keyCode >= 65 && e.keyCode <= 90) {
-    if (selectedWord.toString().includes(letter)) {
-      if (!correctLetters.includes(letter)) {
-        correctLetters.push(letter);
-        displayWord();
+  if (!isGameEnd) {
+    if (e.keyCode >= 65 && e.keyCode <= 90) {
+      if (selectedWord.toString().includes(letter)) {
+        if (!correctLetters.includes(letter)) {
+          correctLetters.push(letter);
+          displayWord();
+        }
+      }
+
+      if (!selectedWord.toString().includes(letter)) {
+        if (!wrongLetters.includes(letter)) {
+          wrongLetters.push(letter);
+          wrongLetter();
+        }
       }
     }
-
-    if (!selectedWord.toString().includes(letter)) {
-      wrongLetters.push(letter);
-      wrongLetter();
-    }
   }
+});
+
+playAgainBtn.addEventListener('click', async () => {
+  correctLetters.splice(0);
+  selectedWord.splice(0);
+  wrongLetters.splice(0);
+
+  fetch(apiUrl)
+    .then((res) => res.json())
+    .then((data) => setWord('word', data));
+
+  displayWord();
+  wrongLetter();
+
+  //game will start 1.5s later
+  await sleep(2000);
+  isGameEnd = false;
+
+  popup.style.display = 'none';
+  wrongLetterEl.innerHTML = '';
 });
 
 displayWord();
