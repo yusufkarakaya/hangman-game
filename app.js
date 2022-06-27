@@ -4,6 +4,7 @@ const finalMassage = document.getElementById('final-massage');
 const playAgainBtn = document.getElementById('play-again');
 const notification = document.getElementById('notification-container');
 const wrongLetterEl = document.getElementById('wrong-notification');
+const timerEl = document.getElementById('demo');
 
 const figureParts = document.querySelectorAll('.figure-part');
 
@@ -58,7 +59,7 @@ async function displayWord() {
   if (selectedWord.toString() === innerWord) {
     popup.style.display = 'flex';
     finalMassage.innerHTML = `<p>You won! 😎<p>
-    <span>New game will start 2s later after click 'play again'</span>
+    <span>New game will start 3s later after click 'play again'</span>
     `;
     isGameEnd = true;
   }
@@ -67,15 +68,17 @@ async function displayWord() {
 function wrongLetter() {
   const errors = wrongLetters.length;
 
-  wrongLetterEl.innerHTML = `
-  <p>Wrong</p>
-  ${wrongLetters.map(
-    (letter) =>
-      `
-   <span>${letter} </span>
-   `
-  )}
-`;
+  if (errors > 0) {
+    wrongLetterEl.innerHTML = `
+    <p>Wrong</p>
+    ${wrongLetters.map(
+      (letter) =>
+        `
+     <span>${letter} </span>
+     `
+    )}
+  `;
+  }
 
   figureParts.forEach((part, index) => {
     if (index < errors) {
@@ -84,7 +87,7 @@ function wrongLetter() {
       if (errors > 5) {
         popup.style.display = 'flex';
         finalMassage.innerHTML = `<p>You lose! 😔<p>
-        <span>New game will start 2s later after click 'play again'</span>
+        <span>New game will start 3s later after click 'play again'</span>
         `;
         isGameEnd = true;
       }
@@ -127,6 +130,10 @@ window.addEventListener('keydown', (e) => {
 });
 
 playAgainBtn.addEventListener('click', async () => {
+  setTimeout(() => {
+    popup.style.display = 'none';
+  }, 500);
+
   correctLetters.splice(0);
   selectedWord.splice(0);
   wrongLetters.splice(0);
@@ -135,15 +142,20 @@ playAgainBtn.addEventListener('click', async () => {
     .then((res) => res.json())
     .then((data) => setWord('word', data));
 
-  displayWord();
-  wrongLetter();
+  //game will start 3s later
+  timerEl.style.display = 'flex';
+  setTimeout(() => {
+    timerEl.style.display = 'none';
+  }, 3800);
 
-  //game will start 1.5s later
-  await sleep(2000);
+  await sleep(3000);
   isGameEnd = false;
 
   popup.style.display = 'none';
   wrongLetterEl.innerHTML = '';
+
+  displayWord();
+  wrongLetter();
 });
 
 displayWord();
